@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.wallet-adapter-button-trigger {
+  background-color: #0070f3; /* Change to your desired background color */
+  color: white; /* Change to your desired text color */
+  border: none; /* Style as needed */
+  /* Add more styling as required */
+}

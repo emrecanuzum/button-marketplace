@@ -7,14 +7,24 @@ export default function SignIn() {
     return (
       <>
         Signed in as {session?.user?.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
+        <button
+          className="bg-black text-white p-2 rounded-md"
+          onClick={() => signOut()}
+        >
+          Sign out
+        </button>
       </>
     );
   }
   return (
     <>
       Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
+      <button
+        className="bg-black text-white p-2 rounded-md"
+        onClick={() => signIn()}
+      >
+        Sign in
+      </button>
     </>
   );
 }

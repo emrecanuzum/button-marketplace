@@ -1,11 +1,13 @@
 "use client";
 import { SessionProvider, useSession } from "next-auth/react";
-
+import WalletContextProvider from "./WalletContextProvider";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
-      <InnerProviders>{children}</InnerProviders>
-    </SessionProvider>
+    <WalletContextProvider>
+      <SessionProvider>
+        <InnerProviders>{children}</InnerProviders>
+      </SessionProvider>
+    </WalletContextProvider>
   );
 }
 
