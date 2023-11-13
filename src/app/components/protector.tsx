@@ -8,24 +8,18 @@ import {
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export function ProtectedComponent() {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Check if session exists and if user is newly logged in
-    if (session && session.user) {
-      createUser(session.user);
+    if (session && session.user && publicKey) {
+      // Convert publicKey to a string to send to your API
+      const publicKeyString = publicKey.toString();
+      createUser(session.user, publicKeyString);
     }
-  }, [session]);
+  }, [session, publicKey]);
 
-  useEffect(() => {
-    // Check if session exists and if user is newly logged in
-    if (session && session.user) {
-      createUser(session.user);
-    }
-  }, [session]);
-
-  const createUser = async (user: any) => {
+  const createUser = async (user: any, publicKey: string) => {
     try {
       const res = await fetch("/api/user/create", {
         method: "POST",
@@ -33,10 +27,10 @@ export function ProtectedComponent() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: user.email, // Assuming the email is the unique identifier
+          email: user.email,
+          publicKey: user.publicKey,
         }),
       });
-
       if (!res.ok) {
         throw new Error("Error processing request");
       }
