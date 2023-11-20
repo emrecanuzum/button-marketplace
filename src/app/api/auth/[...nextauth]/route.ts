@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+
 import GithubProvider from "next-auth/providers/github";
 import TwitterProvider from "next-auth/providers/twitter";
 import GoogleProvider from "next-auth/providers/google";
@@ -18,6 +19,16 @@ const handler = NextAuth({
     }),
     // ...add more providers here
   ],
+  session: {
+    //jwt: true,
+  },
+  callbacks: {
+    // callbacks for token, token is what the data transfer with session
+    async session({ session, token }) {
+      session.user.id = token.id as string;
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
