@@ -1,7 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
 import { PrismaClient } from "@prisma/client";
-import formidable from "formidable";
+import { IncomingForm } from "formidable";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const prisma = new PrismaClient();
 
@@ -11,52 +12,35 @@ export const config = {
   },
 };
 
-export async function POST(req: NextApiRequest) {
-  // Ensure only POST requests are handled
+export async function POST(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    res.status(405).json({ error: "Method not allowed" });
+    return;
   }
 
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session || !session.user || !session.user.email) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
 
-  const form = new formidable.IncomingForm() as any;
+  const form = new IncomingForm() as any;
   form.uploadDir = "./uploads";
   form.keepExtensions = true;
 
   form.parse(req, async (err: any, fields: any, files: any) => {
     if (err) {
-      return new Response(JSON.stringify({ error: "Form parsing error" }), {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      res.status(500).json({ error: "Form parsing error" });
+      return;
     }
 
     const fileArray = Array.isArray(files.file) ? files.file : [files.file];
     const fileUpload = fileArray[0];
 
     if (!fileUpload) {
-      return new Response(JSON.stringify({ error: "No file uploaded" }), {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      res.status(400).json({ error: "No file uploaded" });
+      return;
     }
 
     const filePath = fileUpload.filepath;
@@ -75,19 +59,9 @@ export async function POST(req: NextApiRequest) {
         },
       });
 
-      return new Response(JSON.stringify(file), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      res.status(200).json(file);
     } catch (dbError) {
-      return new Response(JSON.stringify({ error: "Database error" }), {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      res.status(500).json({ error: "Database error" });
     }
   });
 }
