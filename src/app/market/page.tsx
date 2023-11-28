@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 
 const Market = () => {
   const { data: session, status, update } = useSession();
-  if (!session?.user.mongo_id)
+  console.log(session);
+  if (session?.user?.mongo_id)
     return (
       <main>
         <div className="flex justify-between items-center w-screen p-10 border-b">

@@ -1,27 +1,23 @@
+// src/app/api/user/upload/route.ts
 import { PrismaClient } from "@prisma/client";
 import { IncomingForm } from "formidable";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 const prisma = new PrismaClient();
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
+    res.status(405).end("Method Not Allowed");
     return;
   }
 
+  // Update this line to pass req and res as separate arguments
   const session = await getServerSession(req, res, authOptions);
 
-  if (!session || !session.user || !session.user.email) {
-    res.status(401).json({ error: "Unauthorized" });
+  if (!session || !session.user || !session.user.mongo_id) {
+    res.status(401).end("Unauthorized");
     return;
   }
 
@@ -55,7 +51,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
           filename: fileName,
           mimetype: fileType,
           size: fileSize,
-          userId: session.user.email,
+          userId: session.user.mongo_id,
         },
       });
 
